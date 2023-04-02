@@ -1,0 +1,31 @@
+from tensorflow.keras import datasets,utils,models,layers,optimizers,losses
+import matplotlib.pyplot as plt
+import numpy as np
+
+(x_train,train_labels),(x_test,test_labels)=datasets.mnist.load_data()
+x_train=x_train/255
+x_test=x_test/255
+x_train_flattened=x_train.reshape(len(x_train),28,28,1)
+x_test_flattened=x_train.reshape(len(x_train),28,28,1)
+y_train=utils.to_categorical(train_labels)
+y_test=utils.to_categorical(test_labels)
+
+myinput=layers.Input(shape=(28,28,1))
+conv1=layers.Conv2D(32,(3,3),activation="relu",padding="same",strides=2)(myinput)
+conv2=layers.Conv2D(64,(3,3),activation="relu",padding="same",strides=2)(conv1)
+flat=layers.Flatten()(conv2)
+out=layers.Dense(10,activation="softmax")(flat)
+mymodel=models.Model(myinput,out)
+mymodel.summary()
+mymodel.compile(optimizer=optimizers.SGD(lr=0.001),loss=losses.categorical_crossentropy)
+
+history=mymodel.fit(x_train,y_train,batch_size=128,epochs=50,validation_split=0.2)
+
+losses=history.history['loss']
+val_losses=history.history['val_loss']
+
+plt.plot(losses)
+plt.plot(val_losses)
+plt.xlabel('epochs')
+plt.ylabel('loss')
+plt.legend('loss','val_loss')
